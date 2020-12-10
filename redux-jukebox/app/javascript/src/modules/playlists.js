@@ -19,6 +19,18 @@ const playlists = (state = initialState, action) => {
       }
     case GET_ARTISTS_REQUEST_FAILURE:
       return {...state, isFetching: false }
+    case GET_SONGS_REQUEST:
+      return {...state, isFetching: true }
+    case GET_SONGS_REQUEST_SUCCESS:
+      return {...state,
+        artistSongs: action.songs,
+        isFetching: false
+      }
+    case GET_SONGS_REQUEST_FAILURE:
+      return {...state, isFetching: false }
+    case UPDATE_SELCETED_ARTIST_REQUEST:
+      console.log(action.artistId)
+      return {...state, selectedArtistId: action.artistId}
     default:
       return state
   }
@@ -50,6 +62,39 @@ const getArtistsRequestFailure = () => {
   }
 }
 
+const UPDATE_SELCETED_ARTIST_REQUEST = "UPDATE_SELECTED_ARTIST_REQUEST"
+
+const updateSelectedArtistRequest = artistId => {
+  return {
+    type: UPDATE_SELCETED_ARTIST_REQUEST, 
+    artistId
+  }
+}
+
+const GET_SONGS_REQUEST = 'GET_SONGS_REQUEST'
+
+const getSongsRequest = () => {
+  return {
+    type: GET_SONGS_REQUEST
+  }
+}
+
+const GET_SONGS_REQUEST_SUCCESS = 'GET_SONGS_REQUEST_SUCCESS'
+
+const getSongsRequestSuccess = songs => {
+  return {
+    type: GET_SONGS_REQUEST_SUCCESS,
+    songs
+  }
+}
+
+const GET_SONGS_REQUEST_FAILURE = 'GET_SONGS_REQUEST_FAILURE'
+
+const getSongsRequestFailure = () => {
+  return {
+    type: GET_SONGS_REQUEST_FAILURE
+  }
+}
 
 const getArtists = () => {
   return dispatch => {
@@ -72,7 +117,37 @@ const getArtists = () => {
   }
 }
 
+const updateSelectedArtist = (artistId) => {
+  return dispatch => {
+    dispatch(updateSelectedArtistRequest(artistId))
+  }
+}
+const getSongs = (artistId) => {
+  return dispatch => {
+    dispatch(getSongsRequest())
+    return fetch(`/api/v1/artists/${artistId}/songs.json`)
+    .then(response => {
+      if(response.ok) {
+        return response.json()
+      } else {
+       dispatch(displayAlertMessage("Something went wrong."))
+       return { error: 'Something went wrong.' }
+      }
+    })
+    .then(songs => {
+      if(!songs.error) {
+        dispatch(getSongsRequestSuccess(songs))
+      }
+    })
+  }
+}
+
+
+
+
 export {
   playlists,
-  getArtists
+  getArtists,
+  updateSelectedArtist,
+  getSongs
 }

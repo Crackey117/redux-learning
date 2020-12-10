@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getArtists } from '../modules/playlists'
+import { getArtists, updateSelectedArtist } from '../modules/playlists'
 import ArtistTile from '../components/ArtistTile'
 
 class ArtistsIndexContainer extends Component {
@@ -14,10 +14,15 @@ class ArtistsIndexContainer extends Component {
 
   render() {
     const artistTiles = this.props.artists.map(artist => {
+      const selectedArtist = (event) => {
+        event.preventDefault()
+        this.props.updateSelectedArtist(artist.id)
+      }
       return(
         <ArtistTile
           key={artist.id}
           artist={artist}
+          handleSelect={selectedArtist}
         />
       )
     })
@@ -39,7 +44,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    getArtists: () => dispatch(getArtists())
+    getArtists: () => dispatch(getArtists()),
+    updateSelectedArtist: (artistId) => dispatch(updateSelectedArtist(artistId))
   }
 }
 
