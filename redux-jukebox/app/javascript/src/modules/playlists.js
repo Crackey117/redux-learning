@@ -29,8 +29,26 @@ const playlists = (state = initialState, action) => {
     case GET_SONGS_REQUEST_FAILURE:
       return {...state, isFetching: false }
     case UPDATE_SELCETED_ARTIST_REQUEST:
-      console.log(action.artistId)
       return {...state, selectedArtistId: action.artistId}
+    case POST_PLAYLIST_SONG_REQUEST:
+      return {...state, isFetching: true }
+    case POST_PLAYLIST_SONG_REQUEST_SUCCESS:
+      const newPlaylistSongs = state.playlistSongs.concat(action.playlistSong)
+      return {...state,
+        playlistSongs: newPlaylistSongs,
+        isFetching: false
+      }
+    case POST_PLAYLIST_SONG_REQUEST_FAILURE:
+      return {...state, isFetching: false }
+    case GET_PLAYLIST_SONGS_REQUEST:
+      return {...state, isFetching: true }
+    case GET_PLAYLIST_SONGS_REQUEST_SUCCESS:
+      return {...state,
+        playlistSongs: action.playlistSongs,
+        isFetching: false
+      }
+    case GET_PLAYLIST_SONGS_REQUEST_FAILURE:
+      return {...state, isFetching: false }
     default:
       return state
   }
@@ -105,8 +123,9 @@ const getArtists = () => {
       if(response.ok) {
         return response.json()
       } else {
-       dispatch(displayAlertMessage("Something went wrong."))
-       return { error: 'Something went wrong.' }
+        dispatch(getArtistsRequestFailure())
+        dispatch(displayAlertMessage("Something went wrong."))
+        return { error: 'Something went wrong.' }
       }
     })
     .then(artists => {
@@ -130,8 +149,9 @@ const getSongs = (artistId) => {
       if(response.ok) {
         return response.json()
       } else {
-       dispatch(displayAlertMessage("Something went wrong."))
-       return { error: 'Something went wrong.' }
+        dispatch(getSongsRequestFailure())
+        dispatch(displayAlertMessage("Something went wrong."))
+        return { error: 'Something went wrong.' }
       }
     })
     .then(songs => {
@@ -142,12 +162,110 @@ const getSongs = (artistId) => {
   }
 }
 
+const POST_PLAYLIST_SONG_REQUEST = 'POST_PLAYLIST_SONG_REQUEST'
+
+const postPlaylistSongRequest = () => {
+  return {
+    type: POST_PLAYLIST_SONG_REQUEST
+  }
+}
+
+const POST_PLAYLIST_SONG_REQUEST_SUCCESS = 'POST_PLAYLIST_SONG_REQUEST_SUCCESS'
+
+const postPlaylistSongRequestSuccess = playlistSong => {
+  return {
+    type: POST_PLAYLIST_SONG_REQUEST_SUCCESS,
+    playlistSong
+  }
+}
+
+const POST_PLAYLIST_SONG_REQUEST_FAILURE = 'POST_PLAYLIST_SONG_REQUEST_FAILURE'
+
+const postPlaylistSongRequestFailure = () => {
+  return {
+    type: POST_PLAYLIST_SONG_REQUEST_FAILURE
+  }
+}
+const GET_PLAYLIST_SONGS_REQUEST = 'GET_PLAYLIST_SONGS_REQUEST'
+
+const getPlaylistSongsRequest = () => {
+  return {
+    type: GET_PLAYLIST_SONGS_REQUEST
+  }
+}
+
+const GET_PLAYLIST_SONGS_REQUEST_SUCCESS = 'GET_PLAYLIST_SONGS_REQUEST_SUCCESS'
+
+const getPlaylistSongsRequestSuccess = playlistSongs => {
+  return {
+    type: GET_PLAYLIST_SONGS_REQUEST_SUCCESS,
+    playlistSongs
+  }
+}
+
+const GET_PLAYLIST_SONGS_REQUEST_FAILURE = 'GET_PLAYLIST_SONGS_REQUEST_FAILURE'
+
+const getPlaylistSongsRequestFailure = () => {
+  return {
+    type: GET_PLAYLIST_SONGS_REQUEST_FAILURE
+  }
+}
 
 
 
+const postPlaylistSong = song => {
+  return dispatch => {
+    dispatch(postPlaylistSongRequest())
+    return fetch(`/api/v1/songs/${song.id}/playlist_songs.json`,
+      {
+        method: 'POST',
+        body: JSON.stringify(song),
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+      }
+    )
+    .then(response => {
+      if(response.ok) {
+        return response.json()
+      } else {
+        dispatch(postPlaylistSongRequestFailure())
+        dispatch(displayAlertMessage("Something went wrong."))
+       return { error: 'Something went wrong.' }
+      }
+    })
+    .then(song => {
+      if(!song.error) {
+        dispatch(postPlaylistSongRequestSuccess(song))
+      }
+    })
+  }
+}
+const getPlaylistSongs = () => {
+  return dispatch => {
+    dispatch(getPlaylistSongsRequest())
+
+    return fetch('/api/v1/playlist_songs.json')
+    .then(response => {
+      if(response.ok) {
+        return response.json()
+      } else {
+        dispatch(getPlaylistSongsRequestFailure())
+        dispatch(displayAlertMessage("Something went wrong."))
+        return { error: 'Something went wrong.' }
+      }
+    })
+    .then(playlistSongs => {
+      if(!playlistSongs.error) {
+        dispatch(getPlaylistSongsRequestSuccess(playlistSongs))
+      }
+    })
+  }
+}
 export {
   playlists,
   getArtists,
   updateSelectedArtist,
-  getSongs
+  getSongs,
+  postPlaylistSong,
+  getPlaylistSongs
 }

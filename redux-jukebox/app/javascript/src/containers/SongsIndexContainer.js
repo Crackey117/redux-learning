@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getSongs } from '../modules/playlists'
+import { getSongs, postPlaylistSong } from '../modules/playlists'
 
 import SongTile from '../components/SongTile'
 
@@ -9,7 +9,6 @@ class SongsIndexContainer extends Component {
     super(props)
   }
   componentDidUpdate(prevProps) {
-    // Typical usage (don't forget to compare props):
     if (this.props.selectedArtist !== prevProps.selectedArtist) {
       this.props.getSongs(this.props.selectedArtist)
     }
@@ -19,7 +18,7 @@ class SongsIndexContainer extends Component {
     
     const songTiles = this.props.songs.map(song => {
       const addSong = () => {
-        // add your code here
+        this.props.postPlaylistSong(song)
       }
       return(
         <SongTile
@@ -48,7 +47,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    getSongs: (artistId) => dispatch(getSongs(artistId))
+    getSongs: (artistId) => dispatch(getSongs(artistId)),
+    postPlaylistSong: (song) => dispatch(postPlaylistSong(song))
   }
 }
 

@@ -1,18 +1,19 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-
+import { getPlaylistSongs } from '../modules/playlists'
 import SongTile from '../components/SongTile'
 
 class PlaylistContainer extends Component {
   constructor(props) {
     super(props)
   }
-
+  componentDidMount() {
+    this.props.getPlaylistSongs()
+  }
+  
   render() {
-    // change this variable below once this container has access to the `playlistSongs` in state
-    const playlistSongs = []
-
-    const songTiles = playlistSongs.map(playlistSong => {
+  
+    const songTiles = this.props.playlistSongs.map(playlistSong => {
       return(
         <SongTile
           key={playlistSong.id}
@@ -32,4 +33,20 @@ class PlaylistContainer extends Component {
   }
 }
 
-export default PlaylistContainer
+const mapStateToProps = state => {
+  return {
+    playlistSongs: state.playlists.playlistSongs
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    getPlaylistSongs: () => dispatch(getPlaylistSongs()),
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PlaylistContainer)
+
