@@ -74,32 +74,33 @@ describe('getActivities', () => {
 })
 
 
-// describe('patchActivity', () => {
-//   afterEach(() => {
-//     fetchMock.reset()
-//     fetchMock.restore()
-//   })
+describe('patchActivity', () => {
+  afterEach(() => {
+    fetchMock.reset()
+    fetchMock.restore()
+  })
+  
 
-//   it('calls the request and success actions if the fetch response was successful', done => {
-//     const updatedActivity = { id: 1, name: 'finish redux', complete: false }
-//     const activityId = updatedActivity.id 
-//     fetchMock.patch(`/api/v1/activities/${activityId}.json`, {
-//       status: 200,
-//       body: activityId
-//     })
+  it('calls the request and success actions if the fetch response was successful', done => {
+    
+    const updatedActivity = { id: 1, name: 'finish redux', complete: false }
+    fetchMock.patch(`/api/v1/activities/${updatedActivity.id}.json`, {
+      status: 200,
+      body: updatedActivity
+    })
 
-//     const expectedActions = [
-//       { type: UPDATE_ACTIVITY_STATUS, updatedActivity: updatedActivity }
-//     ]
-//     const store = mockStore({
-//       activitiyList: []
-//     })
+    const expectedActions = [
+      { type: UPDATE_ACTIVITY_STATUS, updatedActivity: updatedActivity }
+    ]
+    const store = mockStore({
+      activitiyList: []
+    })
 
-//     store
-//       .dispatch(patchActivity())
-//       .then(() => {
-//         expect(store.getActions()).toEqual(expectedActions)
-//         done()
-//       })
-//   })
-// })
+    store
+      .dispatch(patchActivity(updatedActivity.id))
+      .then(() => {
+        expect(store.getActions()).toEqual(expectedActions)
+        done()
+      })
+  })
+})
